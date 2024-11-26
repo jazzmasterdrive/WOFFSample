@@ -138,6 +138,10 @@
 
         function renderCalendar() {
             const calendar = document.getElementById('calendar');
+            if (!calendar) {
+                console.error("カレンダー要素が見つかりません");
+                return;
+            }
             const dates = getNextMonthDates();
             dates.forEach(date => {
                 const dateElement = document.createElement('div');
