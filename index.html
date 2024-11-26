@@ -170,11 +170,13 @@
         }
 
         window.onload = function () {
+            console.log("Window loaded");
             woff
                 .init({
                     woffId: woffId
                 })
                 .then(() => {
+                    console.log("WOFF initialized");
                     woff.getProfile().then(profile => {
                         const profileInfoElem = document.getElementById("userProfileInfo");
                         profileInfoElem.innerHTML = `
