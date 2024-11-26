@@ -146,6 +146,27 @@
                 dateElement.textContent = date.getDate();
                 calendar.appendChild(dateElement);
             });
+
+            // カレンダーの日付要素を取得
+            const dateElements = document.querySelectorAll('.calendar-date');
+
+            // 日付要素にクリックイベントを追加
+            dateElements.forEach(dateElement => {
+                dateElement.addEventListener('click', () => {
+                    // クリックされた日付に色を付ける
+                    dateElement.style.backgroundColor = dateElement.style.backgroundColor === 'yellow' ? '' : 'yellow'; // 好きな色に変更可能
+
+                    // WOFF APIを使用してデータを保存する例
+                    woff.save({
+                        date: dateElement.dataset.date, // 日付データを取得
+                        color: dateElement.style.backgroundColor // 選択した色を保存
+                    }).then(response => {
+                        console.log('データが保存されました:', response);
+                    }).catch(error => {
+                        console.error('データの保存に失敗しました:', error);
+                    });
+                });
+            });
         }
 
         window.onload = function () {
@@ -175,27 +196,6 @@
             document.getElementById("sendQRDataBtn").addEventListener("click", sendQRToWOFF);
 
             renderCalendar();
-
-            // カレンダーの日付要素を取得
-            const dates = document.querySelectorAll('.calendar-date');
-
-            // 日付要素にクリックイベントを追加
-            dates.forEach(date => {
-                date.addEventListener('click', () => {
-                    // クリックされた日付に色を付ける
-                    date.style.backgroundColor = date.style.backgroundColor === 'yellow' ? '' : 'yellow'; // 好きな色に変更可能
-
-                    // WOFF APIを使用してデータを保存する例
-                    woff.save({
-                        date: date.dataset.date, // 日付データを取得
-                        color: date.style.backgroundColor // 選択した色を保存
-                    }).then(response => {
-                        console.log('データが保存されました:', response);
-                    }).catch(error => {
-                        console.error('データの保存に失敗しました:', error);
-                    });
-                });
-            });
         };
     </script>
     <script charset="utf-8" src="https://static.worksmobile.net/static/wm/woff/edge/3.6/sdk.js"></script>
