@@ -118,10 +118,6 @@
             <h2>カレンダー</h2>
             <div class="calendar" id="calendar">
                 <!-- 日付要素を動的に生成 -->
-                <div class="calendar-date" data-date="2024-11-01">1</div>
-                <div class="calendar-date" data-date="2024-11-02">2</div>
-                <div class="calendar-date" data-date="2024-11-03">3</div>
-                <!-- 以降の日付要素も同様に追加 -->
             </div>
         </div>
 
@@ -129,64 +125,28 @@
     </div>
 
     <script>
-        function getLocation() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(showPosition);
-            } else {
-                document.getElementById("locationInfo").innerHTML = "このブラウザはGeolocationをサポートしていません。";
+        function getNextMonthDates() {
+            const today = new Date();
+            const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+            const dates = [];
+            while (nextMonth.getMonth() === (today.getMonth() + 1) % 12) {
+                dates.push(new Date(nextMonth));
+                nextMonth.setDate(nextMonth.getDate() + 1);
             }
+            return dates;
         }
 
-        function showPosition(position) {
-            document.getElementById("locationInfo").innerHTML = "Latitude: " + position.coords.latitude +
-                ", Longitude: " + position.coords.longitude;
-            document.getElementById("sendLocationBtn").style.display = "block";
+        function renderCalendar() {
+            const calendar = document.getElementById('calendar');
+            const dates = getNextMonthDates();
+            dates.forEach(date => {
+                const dateElement = document.createElement('div');
+                dateElement.className = 'calendar-date';
+                dateElement.dataset.date = date.toISOString().split('T')[0];
+                dateElement.textContent = date.getDate();
+                calendar.appendChild(dateElement);
+            });
         }
-
-        function sendLocationToWOFF() {
-            const locationInfoElem = document.getElementById("locationInfo");
-            const messageContent = locationInfoElem.textContent;
-
-            woff.sendMessage({
-                content: messageContent
-            })
-                .then(() => {
-                    alert('Sent successfully');
-                })
-                .catch((err) => {
-                    alert('error: ' + err);
-                });
-        }
-
-        function scanQRCode() {
-            woff.scanQR()
-                .then((result) => {
-                    document.getElementById("qrResult").innerHTML = "Scanned Info: " + result.value;
-                    document.getElementById("sendQRDataBtn").style.display = "block";
-                })
-                .catch((err) => {
-                    alert('error: ' + err);
-                });
-        }
-
-        function sendQRToWOFF() {
-            const qrResultElem = document.getElementById("qrResult");
-            const messageContent = qrResultElem.textContent;
-
-            woff.sendMessage({
-                content: messageContent
-            })
-                .then(() => {
-                    alert('QRコードの情報を送信しました');
-                })
-                .catch((err) => {
-                    alert('error: ' + err);
-                });
-        }
-
-        document.getElementById("exitAppBtn").addEventListener("click", function () {
-            woff.closeWindow();
-        });
 
         window.onload = function () {
             woff
@@ -214,6 +174,8 @@
             document.getElementById("scanQRBtn").addEventListener("click", scanQRCode);
             document.getElementById("sendQRDataBtn").addEventListener("click", sendQRToWOFF);
 
+            renderCalendar();
+
             // カレンダーの日付要素を取得
             const dates = document.querySelectorAll('.calendar-date');
 
@@ -221,12 +183,12 @@
             dates.forEach(date => {
                 date.addEventListener('click', () => {
                     // クリックされた日付に色を付ける
-                    date.style.backgroundColor = 'yellow'; // 好きな色に変更可能
+                    date.style.backgroundColor = date.style.backgroundColor === 'yellow' ? '' : 'yellow'; // 好きな色に変更可能
 
                     // WOFF APIを使用してデータを保存する例
                     woff.save({
                         date: date.dataset.date, // 日付データを取得
-                        color: 'yellow' // 選択した色を保存
+                        color: date.style.backgroundColor // 選択した色を保存
                     }).then(response => {
                         console.log('データが保存されました:', response);
                     }).catch(error => {
